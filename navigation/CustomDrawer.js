@@ -15,6 +15,7 @@ import {
   icons,
   SIZES,
 } from "../constants";
+import Animated from "react-native-reanimated";
 
 const Drawer = createDrawerNavigator();
 
@@ -115,7 +116,7 @@ const CustomDrawerContent = ({ navigation }) => {
           <CustomDrawerItem label="Invite a friend" icon={icons.profile} />
           <CustomDrawerItem label="Help Center" icon={icons.help} />
         </View>
-        <View style={{marginBottom:SIZES.padding}}>
+        <View style={{ marginBottom: SIZES.padding }}>
           <CustomDrawerItem label="Logout" icon={icons.logout} />
         </View>
       </View>
@@ -124,10 +125,24 @@ const CustomDrawerContent = ({ navigation }) => {
 };
 
 const CustomDrawer = () => {
+  const [progress, setProgress] = React.useState(new Animated.Value(0));
+
+  const scale = Animated.interpolateNode(progress, {
+    inputRange: [0, 1],
+    outputRange: [1, 0.8],
+  });
+
+  const borderRadius = Animated.interpolateNode(progress, {
+    inputRange: [0, 1],
+    outputRange: [0, 26],
+  });
+
+  const animatedStyle = { borderRadius, transform: [{ scale }] };
+
   return (
     <View
       style={{
-        flex: 1, 
+        flex: 1,
         backgroundColor: COLORS.primary,
       }}
     >
@@ -145,11 +160,14 @@ const CustomDrawer = () => {
         }}
         initialRouteName="MainLayout"
         drawerContent={(props) => {
+          setTimeout(() => {
+            setProgress(props.progress);
+          }, 0);
           return <CustomDrawerContent navigation={props.navigation} />;
         }}
       >
         <Drawer.Screen name="MainLayout">
-          {(props) => <MainLayout {...props} />}
+          {(props) => <MainLayout {...props} drawerAnimatedStyle={animatedStyle} />}
         </Drawer.Screen>
       </Drawer.Navigator>
     </View>
